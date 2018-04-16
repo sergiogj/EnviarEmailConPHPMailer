@@ -1,3 +1,4 @@
 # EnviarEmailConPHPMailer
 
-- Enviar un email en formato HTML
+- Genera un archivo PDF a partir del formulario.
+- Envía un email con el PDF generado  adjunto.
