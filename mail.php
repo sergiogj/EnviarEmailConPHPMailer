@@ -27,8 +27,28 @@
 					use PHPMailer\PHPMailer\Exception;
 					// require composer autoload
 					require __DIR__ . '/vendor/autoload.php';
+					$mpdf = new \Mpdf\Mpdf(); // Create new mPDF Document
+					// Beginning Buffer to save PHP variables and HTML tags
 
+					$mpdf->SetHTMLHeader('
+					<div style="text-align:center;font-weight:bold;">
+						<p>Formulario</p>
+					</div>
+					');
 
+					$mpdf->SetHTMLFooter('
+					<table style="width:100%;">
+						<tr>
+							<td style="width:33%;text-align:left;">{DATE j-m-Y}</td>
+							<td style="width:33%;text-align:center;"></td>
+							<td style="width:33%;text-align:center;">Página {PAGENO}/{nbpg}</td>
+						</tr>
+					</table>
+					');
+					$mpdf->WriteHTML($plantilla);
+					// Saves file on the server as 'filename.pdf'
+					$ficheropdf = __DIR__ . "/formulario.pdf";
+					$mpdf->Output($ficheropdf, \Mpdf\Output\Destination::FILE);
 					$mail = new PHPMailer(true); // Passing `true` enables exceptions
 					$mail->CharSet = 'utf-8';
 					try {
@@ -44,19 +64,21 @@
 						$mail->setFrom($email, "$nombre $apellidos");
 						$mail->addAddress('', '');
 
-						// $mail->addAddress('ellen@example.com');
+						// $mail->addAddress('ellen@example.com');               // Name is optional
 						// $mail->addReplyTo('info@example.com', 'Information');
 						// $mail->addCC('cc@example.com');
 						// $mail->addBCC('bcc@example.com');
 
 						//Attachments
 						// Add attachments
+						$mail->addAttachment($ficheropdf);         
+
 
 						//Content
 						// Set email format to HTML
 						$mail->isHTML(true);                                  
 						$mail->Subject = 'Formulario';
-						$mail->MsgHTML($plantilla);
+						$mail->Body    = "<p>$nombre $apellidos ha hecho una consulta</p>";
 						// $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 						$mail->send();
 
@@ -65,6 +87,7 @@
 						echo "<div class='form-group text-center' >";
 						echo "<input id='atras' type='button' class='btn btn-lg btn-success' value='Volver atrás'>";
 						echo "</div>";
+						unlink($ficheropdf);
 					} catch (Exception $e) {
 						echo "<h3>Estimad@ $nombre $apellidos :</h3>";
 						echo 'Error al enviar el emal: ' . $mail->ErrorInfo;
@@ -73,6 +96,7 @@
 						echo "</div>";
 					}
 					?>
+
 				</div>
 			</div>
 		</div> <!-- END CONTAINER -->
